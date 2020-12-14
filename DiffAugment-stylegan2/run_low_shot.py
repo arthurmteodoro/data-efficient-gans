@@ -21,7 +21,7 @@ from training import misc
 # ----------------------------------------------------------------------------
 
 
-def run(dataset, resolution, result_dir, DiffAugment, num_gpus, batch_size, total_kimg, ema_kimg, num_samples, gamma, fmap_base, fmap_max, latent_size, mirror_augment, impl, metrics, resume, resume_kimg, num_repeats, eval):
+def run(dataset, resolution, result_dir, DiffAugment, num_gpus, batch_size, total_kimg, ema_kimg, num_samples, gamma, fmap_base, fmap_max, latent_size, mirror_augment, impl, metrics, resume, resume_kimg, num_repeats, eval, snapshot_ticks):
     train = EasyDict(run_func_name='training.training_loop.training_loop')  # Options for training loop.
     G = EasyDict(func_name='training.networks_stylegan2.G_main')       # Options for generator network.
     D = EasyDict(func_name='training.networks_stylegan2.D_stylegan2')  # Options for discriminator network.
@@ -84,6 +84,7 @@ def run(dataset, resolution, result_dir, DiffAugment, num_gpus, batch_size, tota
     kwargs = EasyDict(train)
     kwargs.update(G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, loss_args=loss_args)
     kwargs.update(dataset_args=dataset_args, sched_args=sched, grid_args=grid, metric_arg_list=metrics, tf_config=tf_config)
+    kwargs.update(image_snapshot_ticks=snapshot_ticks, network_snapshot_ticks=snapshot_ticks)
     kwargs.update(resume_pkl=resume, resume_kimg=resume_kimg, resume_with_new_nets=True)
     kwargs.update(metric_args=metric_args)
     if ema_kimg is not None:
@@ -151,6 +152,7 @@ def main():
     parser.add_argument('--resume-kimg', help='Resume training length', default=0, type=int)
     parser.add_argument('--num-repeats', help='Repeats of evaluation runs (default: %(default)s)', default=1, type=int, metavar='N')
     parser.add_argument('--eval', help='Evalulate mode?', action='store_true')
+    parser.add_argument('--snapshot-ticks', help='Set network and image snapshot tick', default=10, type=int)
 
     args = parser.parse_args()
 
